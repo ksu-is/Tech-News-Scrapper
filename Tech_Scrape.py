@@ -4,8 +4,8 @@ from bs4 import BeautifulSoup
 # Set the URLs to scrape
 urlNew = ['https://www.wired.com', 'https://www.futurism.com', 'https://www.gizmodo.com', 'https://www.techcrunch.com/', 'https://www.nytimes.com/section/technology']
 
-# Loop through each website
-for url in urlNew:
+# Define a function to scrape each website
+def scrape_website(url):
     print('\n' + '='*50)
     print(f"Scraping: {url}")
     print(f"{'='*50}\n")
@@ -37,3 +37,13 @@ for url in urlNew:
     
     except requests.exceptions.RequestException as e:
         print(f"Error scraping {url}: {e}\n")
+
+# Start the scraping process with user input
+user_input = input("Good Morning! Press Enter to start scraping the latest tech news from multiple sources or type 'exit' to quit: ")
+if user_input.lower() == 'exit':
+    print("Have a great day! Goodbye!")
+    exit()
+else:
+    for url in urlNew:
+        scrape_website(url)
+    
