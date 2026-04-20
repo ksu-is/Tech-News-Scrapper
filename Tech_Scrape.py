@@ -22,20 +22,18 @@ for url in urlNew:
         headlines = soup.find_all(['h2', 'h3'])
         
         print(f"--- Found {len(headlines)} potential headlines ---\n")
-        
+
+        # Limit to 10 headlines per URL
+        count = 0
         for item in headlines:
             title = item.text.strip()
-            if len(title) > 30 : # Filters out tiny text like "Menu" or "Search"
+            
+            if len(title) > 45: # Filters out tiny text like "Menu" or "Search"
                 print(f"HEADLINE: {title}")
                 print("-" * 20)
-    
-    except requests.exceptions.RequestException as e:
-        print(f"Error scraping {url}: {e}\n")
-        for item in headlines:
-            title = item.text.strip()
-            if len(title) > 10: # Filters out tiny text like "Menu" or "Search"
-                print(f"HEADLINE: {title}")
-                print("-" * 20)
+                count += 1
+                if count >= 10:
+                    break
     
     except requests.exceptions.RequestException as e:
         print(f"Error scraping {url}: {e}\n")
