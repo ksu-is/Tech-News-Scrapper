@@ -1,11 +1,11 @@
 import requests
 from bs4 import BeautifulSoup
+from urllib.parse import urlparse
 
 # Define news outlets with names and URLs
 NEWS_OUTLETS = {
     'Wired': 'https://www.wired.com',
     'Futurism': 'https://www.futurism.com',
-    'Gizmodo': 'https://www.gizmodo.com',
     'TechCrunch': 'https://www.techcrunch.com/',
     'New York Times (Tech)': 'https://www.nytimes.com/section/technology'
 }
@@ -23,20 +23,56 @@ def scrape_website(url):
         # Parse the HTML content
         soup = BeautifulSoup(response.text, 'html.parser')
         
-        # Find all the articles on the page
-        # Look for all common headline tags
-        headlines = soup.find_all(['h2', 'h3'])
+        # Find all links on the page
+        links = soup.find_all('a', limit=100)
         
-        print(f"--- Found {len(headlines)} potential headlines ---\n")
+        print(f"--- Found {len(links)} potential Articles ---\n")
 
-        # Limit to 10 headlines per URL
+        # Limit to 10 articles per outlet
         count = 0
-        for item in headlines:
-            title = item.text.strip()
+        for link in links:
+            title = link.text.strip()
+            article_url = link.get('href', '')
             
-            if len(title) > 45: # Filters out tiny text like "Menu" or "Search"
+            # Filter out tiny text and empty links
+            if len(title) > 45 and article_url:
+                # Skip links with '#', 'javascript:', or no protocol
+                if article_url.startswith('#') or article_url.startswith('javascript:'):
+                    continue
+                
+                # Handle relative URLs
+                if article_url.startswith('/'):
+                    article_url = url.rstrip('/') + article_url
+                elif not article_url.startswith('http'):
+                    article_url = url.rstrip('/') + '/' + article_url
+                
+                # Skip if still not a valid HTTP URL
+                if not article_url.startswith('http'):
+                    continue
+                
+                # Skip external links (only keep same domain)
+                parsed_base = urlparse(url)
+                parsed_link = urlparse(article_url)
+                base_domain = parsed_base.netloc.replace('www.', '')
+                link_domain = parsed_link.netloc.replace('www.', '')
+                if link_domain != base_domain:
+                    continue
+                
+                # Skip overly long URLs (usually ads/tracking)
+                if len(article_url) > 300:
+                    continue
+                
+                # Skip common non-article URLs (but allow query parameters)
+                skip_keywords = ['/search', '/tag/', '/author/', '/category', '/page/', '/ads/', '/subscribe', '/newsletter']
+                if any(keyword in article_url.lower() for keyword in skip_keywords):
+                    continue
+                
+                # Truncate URL for clean display while keeping it clickable
+                display_url = article_url if len(article_url) <= 75 else article_url[:72] + "..."
+                
                 print(f"HEADLINE: {title}")
-                print("-" * 20)
+                print(f"🔗 {display_url}")
+                print("-" * 50)
                 count += 1
                 if count >= 10:
                     break
@@ -92,6 +128,7 @@ else:
 
 # Scrape the selected outlets
 print(f"\nScraping {len(selected_urls)} news outlet(s)...\n")
+
 for url in selected_urls:
     scrape_website(url)
     
