@@ -10,6 +10,7 @@ NEWS_OUTLETS = {
     'New York Times (Tech)': 'https://www.nytimes.com/section/technology'
 }
 
+print("Welcome to the Tech News Scraper!")
 # Define a function to scrape each website
 def scrape_website(url):
     print('\n' + '='*50)
