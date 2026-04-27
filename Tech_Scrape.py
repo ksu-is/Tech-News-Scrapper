@@ -7,7 +7,7 @@ NEWS_OUTLETS = {
     'Wired': 'https://www.wired.com',
     'Futurism': 'https://www.futurism.com',
     'TechCrunch': 'https://www.techcrunch.com/',
-    'New York Times (Tech)': 'https://www.nytimes.com/section/technology'
+    'The Verge': 'https://www.theverge.com/tech'
 }
 
 print("Welcome to the Tech News Scraper!")
@@ -18,8 +18,11 @@ def scrape_website(url):
     print(f"{'='*50}\n")
     
     try:
-        # Make a request to the website
-        response = requests.get(url, timeout=100)
+        # Make a request with User-Agent header
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        }
+        response = requests.get(url, timeout=100, headers=headers)
         
         # Parse the HTML content
         soup = BeautifulSoup(response.text, 'html.parser')
@@ -36,7 +39,7 @@ def scrape_website(url):
             article_url = link.get('href', '')
             
             # Filter out tiny text and empty links
-            if len(title) > 45 and article_url:
+            if len(title) > 10 and article_url:
                 # Skip links with '#', 'javascript:', or no protocol
                 if article_url.startswith('#') or article_url.startswith('javascript:'):
                     continue
@@ -68,11 +71,8 @@ def scrape_website(url):
                 if any(keyword in article_url.lower() for keyword in skip_keywords):
                     continue
                 
-                # Truncate URL for clean display while keeping it clickable
-                display_url = article_url if len(article_url) <= 75 else article_url[:72] + "..."
-                
                 print(f"HEADLINE: {title}")
-                print(f"🔗 {display_url}")
+                print(f"🔗 {article_url}")
                 print("-" * 50)
                 count += 1
                 if count >= 10:
