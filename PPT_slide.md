@@ -1,2 +1,2 @@
 # Tech News Scrapper Marketing Slide
-![alt text](image.png)
+![Alt Text]![alt text](image-1.png)
