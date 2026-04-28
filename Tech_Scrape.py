@@ -40,6 +40,10 @@ def scrape_website(url):
             
             # Filter out tiny text and empty links
             if len(title) > 10 and article_url:
+                # Skip common navigation words
+                skip_words = ['home', 'about', 'contact', 'search', 'menu', 'sign in', 'login', 'subscribe', 'follow', 'more']
+                if title.lower() in skip_words:
+                    continue
                 # Skip links with '#', 'javascript:', or no protocol
                 if article_url.startswith('#') or article_url.startswith('javascript:'):
                     continue
